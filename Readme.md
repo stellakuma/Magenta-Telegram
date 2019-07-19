@@ -2,5 +2,5 @@ Magenta the telegram bot
 ========================
 > ## Magenta v1
 >> ### Changelogs
->> add Readme.md
+>> Add Readme.md ( 2019/07/19 )
 
