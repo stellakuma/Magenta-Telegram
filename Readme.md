@@ -1,8 +1,6 @@
 Magenta the telegram bot
 ========================
-tensorflow-applied telegram bot
--------------------------------
-- - -
 > ## Magenta v1
-> ### Changelogs
+>> ### Changelogs
+>> add Readme.md
 
