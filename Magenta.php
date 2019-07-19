@@ -2,7 +2,7 @@
 
 class Magenta{
 	
-	private $token = "975610726:AAHNNHSU8AeiK7j7OjIGI033HAb7qhQlbtQ";
+	private $token = "";
 	private $baseUrl = 'https://api.telegram.org/bot';
     private $sendBool = false;
     private $messageChatId = '';
@@ -26,7 +26,7 @@ class Magenta{
         return json_decode($result, true);
     }
 	
-	public functino getData($offsetId){
+	public function getData($offsetId){
 		
 		
 		
