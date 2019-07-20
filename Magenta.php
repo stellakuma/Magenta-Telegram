@@ -2,35 +2,31 @@
 
 class Magenta{
 	
-	private $token = "";
-	private $baseUrl = 'https://api.telegram.org/bot';
-    private $sendBool = false;
-    private $messageChatId = '';
-    private $messageText = '';
+	//include_once "C:/Users/PC001/Magenta-Telegram/BotToken.php";
 	
-	public function __construct(){
+	//$bt = new BotToken;
+	public $token = "";
+	public $aurl = "https://api.telegram.org/bot";
+	
+	public function sendMessage( $token, $chatid, $text ){
 		
-		$this->baseUrl = $this->baseUrl.$this->token;
+		$url = '{$this->aurl.$this->token}/sendMessage?chat_id={$chatid}&text="{$text}"';
+		
+		$curl = curl_init;
+		
+		curl_setopt ( $curl, CURLOPT_URL, $url );
+		curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, 1);
+		
+		var_dump(curl_exec($curl));
+		
+		echo "done!";
 		
 	}
 	
-	private function GetCurl($url, $data=array()) {
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_POST, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($ch);
-        curl_close($ch);
-        
-        return json_decode($result, true);
-    }
-	
-	public function getData($offsetId){
-		
-		
-		
-	}
 }
+
+$a = new Magenta;
+
+$a->sendMessage( $a->token, "-1001139061606", "phpcli에서 보낸 메세지 입니다.");
 
 ?>
