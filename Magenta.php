@@ -68,5 +68,5 @@ class Magenta{
 
 //Magenta::Run();
 $a = new Magenta;
-$a-> sendMessage ( "-1001139061606", $a -> response( "/sunrise" ) );
+$a-> sendMessage ( "", $a -> response( "/sunrise" ) );
 ?>
