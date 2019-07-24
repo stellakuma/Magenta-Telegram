@@ -70,6 +70,6 @@ class Magenta{
 
 //Magenta::Run();
 $a = new Magenta;
-$a-> sendMessage ( "-1001139061606", Utils::conv_utf8("\ub3d9\ub355 \uc124\ucc0c") );
+$a-> sendMessage ( "", Utils::conv_utf8("\ub3d9\ub355 \uc124\ucc0c") );
 echo Utils::conv_utf8("\uc548\ub155\n\ub9c8\uc820\ud0c0");
 ?>
