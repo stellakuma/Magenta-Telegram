@@ -7,3 +7,4 @@ Magenta the telegram bot
 >> Remove phpclitest.php ( 2019/07/24 )  
 >> Add Utils.php ( 2019/07/24 )  
 >> Add UTF-8 Converter on Utils.php ( 2019/07/24 )  
+>> Magenta is now Runnable!  

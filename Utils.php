@@ -23,7 +23,7 @@ public static function getTime( $timezoneid, $format ){
 }
 
 //thk stackoverflow
-public static function utf8($num){
+public static function utf8( $num ){
 	
     if($num<=0x7F)       return chr($num);
     if($num<=0x7FF)      return chr(($num>>6)+192).chr(($num&63)+128);
@@ -33,7 +33,7 @@ public static function utf8($num){
 }
 
 
-public static function conv_utf8($nums){
+public static function conv_utf8( $nums ){
 
 	$a = explode ( chr(32), $nums );
 	$t = sizeof($a);
@@ -96,6 +96,14 @@ public static function conv_utf8($nums){
 }
 
 
+public static function setLuid( $luid ){
+	
+	mkdir( "Magenta/luid" );
+	$f = fopen( "Magenta/luid/luid.json", "w+" ) or die ( "Cannot open file" ); 
+	fwrite( $f, $luid );
+	fclose();
+	
+}
 
 }
 ?>
