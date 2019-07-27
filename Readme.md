@@ -8,6 +8,6 @@ Magenta the telegram bot
 >> Add Utils.php ( 2019/07/24 )  
 >> Add UTF-8 Converter on Utils.php ( 2019/07/24 )  
 >> Magenta is now Runnable! ( 2019/07/27 )
-- - -
-> ##Known Bug List
+------------------------------------------
+> ## Known Bug List
 >> when run magenta first, it print latest command again.  
