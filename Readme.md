@@ -10,4 +10,4 @@ Magenta the telegram bot
 >> Magenta is now Runnable! ( 2019/07/27 )
 ------------------------------------------
 > ## Known Bug List
->> when run magenta first, it print latest command again.  
+>> * when run magenta first, it print latest command again.  
