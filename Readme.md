@@ -7,7 +7,7 @@ Magenta the telegram bot
 >> Remove phpclitest.php ( 2019/07/24 )  
 >> Add Utils.php ( 2019/07/24 )  
 >> Add UTF-8 Converter on Utils.php ( 2019/07/24 )  
->> Magenta is now Runnable!
-========================
+>> Magenta is now Runnable! ( 2019/07/27 )
+- - -
 > ##Known Bug List
 >> when run magenta first, it print latest command again.  
