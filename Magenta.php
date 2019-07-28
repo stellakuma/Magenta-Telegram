@@ -3,9 +3,11 @@ namespace MagentaTelegram;
 
 include_once "c:/MagentaTelegram/BotToken.php";
 include_once "c:/MagentaTelegram/Utils.php";
+include_once "c:/MagentaTelegram/FeelModule.php";
 
 use MagentaTelegram\Utils;
 use MagentaTelegram\BotToken;
+use MagentaTelegram\FeelModule;
 
 class Magenta{
 	
@@ -13,6 +15,7 @@ class Magenta{
 	//latest updated id
 	public static $luid = "";
 	public static $wait = false;
+	public static $note = [];
 	
 	public static function sendMessage( $chatid, $text, $upid ){
 		
@@ -26,7 +29,14 @@ class Magenta{
 			
 			if ( $close == "yes" ){
 			
-			die();
+			//when stop magenta
+			
+			self::$luid = $upid;
+			Utils::setData( self::$luid, "luid" );
+			Utils::setData( self::$note, "note" );
+			//echo Utils::getData( "luid" );
+			
+			exit();
 			
 		}
 		
@@ -43,6 +53,7 @@ class Magenta{
 		
 		self::$luid = $upid;
 		
+		//print_r ( self::$note );
 		echo "Sending Message to {$chatid}\n".Utils::getTime("Asia/Seoul", "Y-m-d h:i:s")."\n\n";
 		
 	}		
@@ -145,6 +156,33 @@ class Magenta{
 		$name = ( $darr["type"] == "channel" )? "this function only working on supergroup and private" : $darr["rawname"];
 		$title = ( $darr["type"] == "private" )? "Magenta" : $darr["rawtitle"];
 		$lang = ( $darr["type"] == "channel" )? "this function only working on supergroup and private" : $darr["lang"];
+		$note = "";
+		
+		if ( is_array ( $command ) ){
+			
+			$a = $command;
+			
+			$command = $a[0];
+			
+			for ( $i = 1; ; $i++ ){
+				
+				if ( isset ( $a[$i] ) ){
+					
+					$note = $note.chr(32).$a[$i];
+					
+				} else {
+					
+					break;
+					
+				}
+				
+			}
+			
+		}
+		
+		//echo "\n".$note."\n";
+		
+		//echo Utils::conv_utf8($darr["rawtitle"]);
 		
 		$rarr = [
 		
@@ -152,11 +190,19 @@ class Magenta{
 			"/time" => "현재 시각은 ".Utils::getTime("Asia/Seoul", "Y-m-d h:i:s")." 입니다.",
 			"/roominfo" => "채팅방명 : {$title}\n채팅방의 유형 : {$darr["type"]}",
 			"/userinfo" => "마젠타가 인지하는 정보를 표시합니다.\n"."유저명 : {$name}\n유저호출명 : @{$darr["user_id"]}\n사용 언어 : {$lang}",
-			"/off" => ( $darr["user_id"] == "CYANPEN" )? "Magenta의 종료가 취소되었습니다." : "관리자만 실행할 수 있습니다."
+			"/off" => ( $darr["user_id"] == "CYANPEN" )? "Magenta의 종료가 취소되었습니다." : "관리자만 실행할 수 있습니다.",
+			"/fcstock" => "개발중입니다",
+			"/feel" => "개발중입니다",
+			"/editnote" => ($command == "/editnote")? self::editNote( $name, $darr["user_id"], $note ) : null,
+			"/note" => self::getNote( $darr["user_id"] )
 			
 		];
 		
+		
+		
 		if ( isset ( $rarr[ $command ] ) ){
+
+			//print_r ( self::$note );
 
 			return $rarr[ $command ];
 			
@@ -168,29 +214,76 @@ class Magenta{
 		
 	}
 	
+	public static function editNote( $name, $id, $text ){
+		
+		self::$note[$id] = $text;
+		
+		//echo "\n".$id."\n";
+		//echo "\n".self::$note[$id]."\n";
+		//print_r ( self::$note );
+		
+		return "{$name} 님의 노트가 저장되었습니다!";
+		
+	}
+	
+	public static function getNote( $id ){
+		
+		if ( isset ( self::$note[$id] ) ){
+			
+			return self::$note[$id];
+			
+		} else {
+		
+			return "아직 작성한 노트가 없습니다.";
+			
+		}
+		
+	}
+	
 	public static function Run(){
+		
+		//print_r ( self::$note );
 		
 		$arr = self::checkUpdate();
 		
-		if ( @$arr["upid"] !== self::$luid ) {
+		//print_r ( self::$note );
 		
-		if ( isset ( $arr["texttype"] ) ) {
+		/*
+		echo $arr["upid"]."\n";
+		echo self::$luid."\n";
+		*/
+		$allow = ($arr["upid"] == self::$luid)? false : true;
 		
-		if ( $arr["texttype"] == "bot_command" ){
-			
-			//echo str_replace( "@magenta_bot", "", $arr[7]);
-			
-			self::sendMessage( $arr["chat_id"], self::response( str_replace( "@magenta_bot", "", $arr["text"]), $arr ), $arr["upid"] );
-			
-		} 
 		
-		}
+		if ( $allow == true ) {
+		
+			if ( isset ( $arr["texttype"] ) ) {
+		
+				if ( $arr["texttype"] == "bot_command" ){
+				
+					if ( !strpos( $arr["text"], chr(32) ) ){
+				
+						self::sendMessage( $arr["chat_id"], self::response( str_replace( "@magenta_bot", "", $arr["text"]), $arr ), $arr["upid"] );
+			
+					} else {
+						
+						//echo "\n".$arr["text"]."\n";
+						//echo print_r( explode ( chr(32), str_replace( "@magenta_bot", "", $arr["text"]) ) );
+						
+						self::sendMessage( $arr["chat_id"], self::response( explode ( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) ), $arr ) , $arr["upid"] );
+						
+					}
+			
+				} 
+		
+			}
 		
 		} else {
-			
+		
 			if ( self::$wait == false ){
 			
 			echo "\nMagenta is waiting..\n\n";
+			//print_r ( self::$note );
 			sleep ( 1 );
 			
 			}
@@ -198,16 +291,18 @@ class Magenta{
 		}
 		
 	}
-	
-	public function __destruct(){
-		
-		Utils::setLuid( self::$luid );
-		
-	}
 
 }
 
 for ( $i = 0 ; ; $i++ ){
+
+//when start magenta
+if ( $i == 0 ){
+	
+		Magenta::$luid = Utils::getData("luid");
+		Magenta::$note = Utils::getData("note");
+
+}
 
 Magenta::Run();
 
