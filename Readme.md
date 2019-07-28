@@ -7,7 +7,9 @@ Magenta the telegram bot
 >> Remove phpclitest.php ( 2019/07/24 )  
 >> Add Utils.php ( 2019/07/24 )  
 >> Add UTF-8 Converter on Utils.php ( 2019/07/24 )  
->> Magenta is now Runnable! ( 2019/07/27 )
+>> Magenta is now Runnable! ( 2019/07/27 )  
+>> Add FeelModule.php ( 2019/07/28 )
 ------------------------------------------
 > ## Known Bug List
->> * when run magenta first, it print latest command again.  
+>> * ~~when run magenta first, it print latest command again.~~  
+>> * ~~when type /note, note about user is deleted.~~  
