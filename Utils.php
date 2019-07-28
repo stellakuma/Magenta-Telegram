@@ -96,12 +96,21 @@ public static function conv_utf8( $nums ){
 }
 
 
-public static function setLuid( $luid ){
+public static function setData( $data, $filename ){
 	
-	mkdir( "Magenta/luid" );
-	$f = fopen( "Magenta/luid/luid.json", "w+" ) or die ( "Cannot open file" ); 
-	fwrite( $f, $luid );
-	fclose();
+	@mkdir( "c:/Magenta/" );
+	$f = fopen( "c:/Magenta/{$filename}.json", "w" ) or die ( "Cannot open file" ); 
+	fwrite( $f, json_encode($data) );
+	fclose( $f );
+	
+}
+
+public static function getData( $filename ){
+	
+	$fp = fopen("c:/Magenta/{$filename}.json","r");
+	$fr = json_decode(fread($fp, filesize("c:/Magenta/{$filename}.json")), true);
+	fclose($fp);
+	return $fr;
 	
 }
 
