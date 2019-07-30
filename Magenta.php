@@ -15,34 +15,25 @@ class Magenta{
 	//latest updated id
 	public static $luid = "";
 	public static $wait = false;
-	public static $note = [];
 	
-	public static function sendMessage( $chatid, $text, $upid ){
-		
-		if ( $text == "Magenta의 종료가 취소되었습니다." ){
-			
-			echo "\nAre you sure to off Magenta?\n";
-			
-			$close = "";
-			
-			fscanf( STDIN, "%s\n", $close );
-			
-			if ( $close == "yes" ){
-			
-			//when stop magenta
-			
-			self::$luid = $upid;
-			Utils::setData( self::$luid, "luid" );
-			Utils::setData( self::$note, "note" );
-			//echo Utils::getData( "luid" );
-			
-			exit();
-			
-		}
-		
-		}
+	
+	
+	/*****************************************
+	*
+	* Send, Edit, checkUpdate
+	* Use curl.
+	* checkUpdate also need optimization
+	*
+	*****************************************/
+	
+	public static function sendMessage( $chatid, $text, $upid, $keyboard = null ){
 		
 		$url = self::$aurl.BotToken::getToken()."/sendMessage?chat_id=".$chatid."&text=".urlencode($text);
+		
+		$kb = ( $keyboard !== null )? "&reply_markup=".$keyboard : null;
+		
+		$url = $url.$kb;
+
 		
 		$curl = curl_init();
 		
@@ -52,11 +43,31 @@ class Magenta{
 		curl_exec($curl);
 		
 		self::$luid = $upid;
+
+		echo "\nSending Message to {$chatid}\n".Utils::getTime("Asia/Seoul", "Y-m-d h:i:s")."\n\n";
 		
-		//print_r ( self::$note );
-		echo "Sending Message to {$chatid}\n".Utils::getTime("Asia/Seoul", "Y-m-d h:i:s")."\n\n";
+	}
+
+	public static function editMessage( $chatid, $messageid, $text, $markup = null, $upid ){
 		
-	}		
+		$url = self::$aurl.BotToken::getToken()."/editMessageText?chat_id=".$chatid."&message_id=".$messageid."&text=".urlencode($text);
+		
+		$kb = ( $markup !== null )? "&reply_markup=".$markup : null;
+		
+		$url = $url.$kb;
+		
+		$curl = curl_init();
+		
+		curl_setopt ( $curl, CURLOPT_URL, $url );
+		curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, true );
+		
+		curl_exec($curl);
+		
+		self::$luid = $upid;
+
+		echo "\nEditing Message at {$chatid}, {$messageid}\n".Utils::getTime("Asia/Seoul", "Y-m-d h:i:s")."\n\n";
+		
+	}
 	
 	public static function checkUpdate( $offset = -1 ){
 		
@@ -71,29 +82,7 @@ class Magenta{
 		
 		$arr = json_decode($json, true);
 		
-		//json to array interpretation
-		//print_r ($arr);
-		
 		$rarr = [];
-		
-		//cases
-		 
-		if ( null !== @$arr["result"][0]["channel_post"]["chat"]["type"] ){
-			
-			//echo $arr["result"][0]["channel_post"]["chat"]["type"];
-			
-			if ( @$arr["result"][0]["channel_post"]["chat"]["type"] == "channel" ){
-
-			$rarr["upid"] = $arr["result"][0]["update_id"];
-			$rarr["chat_id"] = $arr["result"][0]["channel_post"]["chat"]["id"];
-			$rarr["rawtitle"] = $arr["result"][0]["channel_post"]["chat"]["title"];
-			$rarr["name"] = $arr["result"][0]["channel_post"]["chat"]["username"];
-			$rarr["type"] = $arr["result"][0]["channel_post"]["chat"]["type"];
-			$rarr["rawtext"] = $arr["result"][0]["channel_post"]["text"];
-			
-			} 
-			
-		}
 				
 		if ( null !== @$arr["result"][0]["message"]["chat"]["type"] ) {
 			
@@ -107,8 +96,8 @@ class Magenta{
 			$rarr["rawtitle"] = $arr["result"][0]["message"]["chat"]["title"];
 			$rarr["type"] = $arr["result"][0]["message"]["chat"]["type"];
 			$rarr["text"] = $arr["result"][0]["message"]["text"];
-			$rarr["texttype"] = $arr["result"][0]["message"]["entities"][0]["type"];
-			$rarr["lang"] = $arr["result"][0]["message"]["from"]["language_code"];
+			$rarr["texttype"] = @$arr["result"][0]["message"]["entities"][0]["type"];
+			$rarr["lang"] = @$arr["result"][0]["message"]["from"]["language_code"];
 			
 			}
 			
@@ -131,38 +120,48 @@ class Magenta{
 			}
 			
 		}
+		
+		if ( null !== @$arr["result"][0]["callback_query"] ){
 			
-		else{
-			
-			$rarr = [
-			
-			"error" => "undefined type of chat"
-			
-			];
+			$rarr["upid"] = $arr["result"][0]["update_id"];
+			$rarr["cbtext"] = $arr["result"][0]["callback_query"]["data"];
+			$rarr["cbmid"] = $arr["result"][0]["callback_query"]["message"]["message_id"];
+			$rarr["cbcid"] = $arr["result"][0]["callback_query"]["message"]["chat"]["id"];
+			$rarr["ikb"] = $arr["result"][0]["callback_query"]["message"]["reply_markup"];
+			$rarr["texttype"] = "callback_query";
 			
 		}
 		
 		//interpretation function
 		//print_r($rarr);
-		//echo "\n".@$arr["result"][0]["message"]["chat"]["type"]."\n";
 		
 		return $rarr;
 		
 	}
 	
+	
+	
+	
+	/*****************************************
+	* 
+	* Function about response
+	* cmd response & inlinebutton reply.
+	* todo : inline cmd reply
+	* 
+	*****************************************/
+	
 	public static function response( $command, $darr ){
 		
-		$srd = ( Utils::getTime("Asia/Seoul", "H") >= explode( ":", Utils::getSunrise("INCHEON"))[0] )? "내일":"오늘";
 		$name = ( $darr["type"] == "channel" )? "this function only working on supergroup and private" : $darr["rawname"];
 		$title = ( $darr["type"] == "private" )? "Magenta" : $darr["rawtitle"];
 		$lang = ( $darr["type"] == "channel" )? "this function only working on supergroup and private" : $darr["lang"];
 		$note = "";
+		$kb = "";
+		
 		
 		if ( is_array ( $command ) ){
 			
-			$a = $command;
-			
-			$command = $a[0];
+			$command = $command[0];
 			
 			for ( $i = 1; ; $i++ ){
 				
@@ -178,31 +177,47 @@ class Magenta{
 				
 			}
 			
+		} elseif ( $command == "/sunrise" ){
+		//sunrise keyboard
+		$kb = [ 'inline_keyboard' => [ [ 
+		
+		[ 'text' => '인천', 'callback_data' => 'sr@INCHEON' ], 
+		[ 'text' => '서울', 'callback_data' => 'sr@SEOUL' ],
+		[ 'text' => '부산', 'callback_data' => 'sr@BUSAN' ],
+		[ 'text' => '울산', 'callback_data' => 'sr@ULSAN' ],
+
+		] ] ];
+		
+		} elseif ( $command == "/random" ) {
+		//random keyboard
+		$kb = [ 'inline_keyboard' => [ [
+		
+		[ 'text' => '숫자 생성', 'callback_data' => 'rd@STANDARD' ] 
+		
+		] ] ];
+
 		}
 		
-		//echo "\n".$note."\n";
-		
-		//echo Utils::conv_utf8($darr["rawtitle"]);
+		$kb = json_encode( $kb );
 		
 		$rarr = [
 		
-			"/sunrise" => $srd."의 일출 시각은 ".Utils::getSunrise("INCHEON")." 입니다.",
+			"/sunrise" => "일출 시각을 알고 싶은 지역의\n 버튼을 눌러주세요!"."#".$kb,
 			"/time" => "현재 시각은 ".Utils::getTime("Asia/Seoul", "Y-m-d h:i:s")." 입니다.",
 			"/roominfo" => "채팅방명 : {$title}\n채팅방의 유형 : {$darr["type"]}",
 			"/userinfo" => "마젠타가 인지하는 정보를 표시합니다.\n"."유저명 : {$name}\n유저호출명 : @{$darr["user_id"]}\n사용 언어 : {$lang}",
-			"/off" => ( $darr["user_id"] == "CYANPEN" )? "Magenta의 종료가 취소되었습니다." : "관리자만 실행할 수 있습니다.",
+			"/off" => ( $command == "/off" )? ( $darr["user_id"] == "CYANPEN" )? self::off("s?", $darr["upid"]) : "관리자만 실행할 수 있습니다." : null,
 			"/fcstock" => "개발중입니다",
 			"/feel" => "개발중입니다",
-			"/editnote" => ($command == "/editnote")? self::editNote( $name, $darr["user_id"], $note ) : null,
-			"/note" => self::getNote( $darr["user_id"] )
+			"/editnote" => ($command == "/editnote")? Utils::editNote( $name, $darr["user_id"], $note ) : null,
+			"/note" => Utils::getNote( $darr["user_id"] ),
+			"/random" => "0부터 100 사이의 난수를 출력합니다!#".$kb
 			
 		];
 		
 		
 		
 		if ( isset ( $rarr[ $command ] ) ){
-
-			//print_r ( self::$note );
 
 			return $rarr[ $command ];
 			
@@ -212,68 +227,116 @@ class Magenta{
 			
 		}
 		
-	}
-	
-	public static function editNote( $name, $id, $text ){
 		
-		self::$note[$id] = $text;
-		
-		//echo "\n".$id."\n";
-		//echo "\n".self::$note[$id]."\n";
-		//print_r ( self::$note );
-		
-		return "{$name} 님의 노트가 저장되었습니다!";
 		
 	}
 	
-	public static function getNote( $id ){
+	public static function inlineReply( $cmdtype, $str ){
 		
-		if ( isset ( self::$note[$id] ) ){
-			
-			return self::$note[$id];
-			
-		} else {
+		$srd = ( Utils::getTime("Asia/Seoul", "H") >= explode( ":", Utils::getSunrise("INCHEON"))[0] )? "내일":"오늘";
+		$srln = [ 
+
+			"INCHEON" => "인천",
+			"SEOUL" => "서울",
+			"BUSAN" => "부산",
+			"ULSAN" => "울산"
+
+		];
 		
-			return "아직 작성한 노트가 없습니다.";
+		$arr = [
+		
+		"sr" => $srd.chr(32).@$srln[$str]."의 일출 시각은 ".@Utils::getSunrise($str)." 입니다.",
+		"rd" => "생성된 숫자는 ".mt_rand(0, 100)." 입니다!"
+		
+		];
+		
+		return $arr[$cmdtype];
+		
+	}
+	
+	
+	
+	/*****************************************
+	*
+	* Off Magenta.
+	* If you are owner of magenta, it will reply on cli. 
+	* when type yes+enter, it will off.
+	*
+	*****************************************/
+	
+	public static function off( $text, $upid ){
+		
+		if ( $text == "s?" ){
 			
+			echo "\nAre you sure to off Magenta?\n";
+			
+			fscanf( STDIN, "%s\n", $text );
+			
+			if ( $text == "yes" ){
+			
+				//when stop magenta
+				self::$luid = $upid;
+				Utils::setData( self::$luid, "luid" );
+				Utils::setData( Utils::$note, "note" );
+			
+				exit();
+			
+			} else {
+			
+				return "Magenta의 종료가 취소되었습니다.";
+			
+			}
+		
 		}
 		
 	}
 	
+	
+	
+	/*****************************************
+	*
+	* Run Magenta.
+	* also needs optimization. 
+	* todo: optimization
+	*
+	*****************************************/
+	
 	public static function Run(){
-		
-		//print_r ( self::$note );
-		
+
 		$arr = self::checkUpdate();
 		
-		//print_r ( self::$note );
-		
-		/*
-		echo $arr["upid"]."\n";
-		echo self::$luid."\n";
-		*/
 		$allow = ($arr["upid"] == self::$luid)? false : true;
 		
-		
+
 		if ( $allow == true ) {
-		
+
 			if ( isset ( $arr["texttype"] ) ) {
-		
+
 				if ( $arr["texttype"] == "bot_command" ){
+							
+						if ( !strpos( $arr["text"], chr(32) ) ){
+							//전달된 텍스트에 커맨드 외의 다른 요소가 있을 경우
 				
-					if ( !strpos( $arr["text"], chr(32) ) ){
-				
-						self::sendMessage( $arr["chat_id"], self::response( str_replace( "@magenta_bot", "", $arr["text"]), $arr ), $arr["upid"] );
+							$rp = explode( "#", self::response( str_replace( "@magenta_bot", "", $arr["text"]), $arr ) );
+							$text = $rp[0];
+							$kb = @$rp[1];
+							
+							self::sendMessage( $arr["chat_id"], $text, $arr["upid"], $kb );
 			
-					} else {
+							} else {
+							//전달된 텍스트에 커맨드만 있을 경우
+							
+							self::sendMessage( $arr["chat_id"], self::response( explode ( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) ), $arr ) , $arr["upid"] );
 						
-						//echo "\n".$arr["text"]."\n";
-						//echo print_r( explode ( chr(32), str_replace( "@magenta_bot", "", $arr["text"]) ) );
-						
-						self::sendMessage( $arr["chat_id"], self::response( explode ( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) ), $arr ) , $arr["upid"] );
-						
-					}
-			
+							}	 
+					  
+				} elseif ( $arr["texttype"] == "callback_query" ){				
+							//인라인 키보드의 답변인 경우
+
+						$a = explode( "@", $arr["cbtext"] );
+						$rpl = self::inlineReply( $a[0], $a[1] );
+						self::editMessage( $arr["cbcid"], $arr["cbmid"], $rpl, json_encode($arr["ikb"]), $arr["upid"] );											
+					
 				} 
 		
 			}
@@ -283,16 +346,16 @@ class Magenta{
 			if ( self::$wait == false ){
 			
 			echo "\nMagenta is waiting..\n\n";
-			//print_r ( self::$note );
-			sleep ( 1 );
+			//sleep ( 0.1 );
 			
 			}
 			
 		}
 		
 	}
-
-}
+	
+	
+	}
 
 for ( $i = 0 ; ; $i++ ){
 
@@ -300,7 +363,7 @@ for ( $i = 0 ; ; $i++ ){
 if ( $i == 0 ){
 	
 		Magenta::$luid = Utils::getData("luid");
-		Magenta::$note = Utils::getData("note");
+		Utils::$note = Utils::getData("note");
 
 }
 
