@@ -19,7 +19,7 @@ class Feel{
 	
 	];
 
-	public static function expEmotion(){
+	public function expEmotion(){
 		
 		
 		
