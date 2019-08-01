@@ -318,13 +318,9 @@ class Magenta{
 				if ( $arr["texttype"] == "bot_command" ){
 							//일반 커맨드인 경우
 							$texts = explode( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) );
-							
 							$texts = ( isset( $texts[1] ) )? $texts : $texts[0];
 							
-							$rp = self::response( $texts, $arr );
-							
-							//키보드 확인, 있으면 키보드와 키보드 아닌 걸로 분리
-							$rp = explode( "#", $rp );
+							$rp = explode( "#", self::response( $texts, $arr ) );
 							
 							self::sendMessage( $arr["chat_id"], $rp[0], $arr["upid"], @$rp[1] );
 							self::$status = 0; 
