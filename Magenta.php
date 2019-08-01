@@ -16,6 +16,9 @@ class Magenta{
 	public static $luid = "";
 	public static $wait = false;
 	
+	//0 = running, 1 = waiting
+	public static $status = 0;
+	
 	
 	
 	/*****************************************
@@ -27,6 +30,8 @@ class Magenta{
 	*****************************************/
 	
 	public static function sendMessage( $chatid, $text, $upid, $keyboard = null ){
+		
+		print_r($text);
 		
 		$url = self::$aurl.BotToken::getToken()."/sendMessage?chat_id=".$chatid."&text=".urlencode($text);
 		
@@ -158,18 +163,18 @@ class Magenta{
 		$note = "";
 		$kb = "";
 		
-		
+
 		if ( is_array ( $command ) ){
-			
-			$command = $command[0];
-			
+		
 			for ( $i = 1; ; $i++ ){
 				
-				if ( isset ( $a[$i] ) ){
+				if ( isset ( $command[$i] ) ){
 					
-					$note = $note.chr(32).$a[$i];
+					$note = $note.chr(32).$command[$i];
 					
 				} else {
+					
+					$command = $command[0];
 					
 					break;
 					
@@ -214,8 +219,6 @@ class Magenta{
 			"/random" => "0부터 100 사이의 난수를 출력합니다!#".$kb
 			
 		];
-		
-		
 		
 		if ( isset ( $rarr[ $command ] ) ){
 
@@ -305,7 +308,7 @@ class Magenta{
 
 		$arr = self::checkUpdate();
 		
-		$allow = ($arr["upid"] == self::$luid)? false : true;
+		$allow = (@$arr["upid"] == self::$luid)? false : true;
 		
 
 		if ( $allow == true ) {
@@ -313,29 +316,25 @@ class Magenta{
 			if ( isset ( $arr["texttype"] ) ) {
 
 				if ( $arr["texttype"] == "bot_command" ){
+							//일반 커맨드인 경우
+							$texts = explode( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) );
 							
-						if ( !strpos( $arr["text"], chr(32) ) ){
-							//전달된 텍스트에 커맨드 외의 다른 요소가 있을 경우
-				
-							$rp = explode( "#", self::response( str_replace( "@magenta_bot", "", $arr["text"]), $arr ) );
-							$text = $rp[0];
-							$kb = @$rp[1];
+							$texts = ( isset( $texts[1] ) )? $texts : $texts[0];
 							
-							self::sendMessage( $arr["chat_id"], $text, $arr["upid"], $kb );
-			
-							} else {
-							//전달된 텍스트에 커맨드만 있을 경우
+							$rp = self::response( $texts, $arr );
 							
-							self::sendMessage( $arr["chat_id"], self::response( explode ( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) ), $arr ) , $arr["upid"] );
-						
-							}	 
+							//키보드 확인, 있으면 키보드와 키보드 아닌 걸로 분리
+							$rp = explode( "#", $rp );
+							
+							self::sendMessage( $arr["chat_id"], $rp[0], $arr["upid"], @$rp[1] );
+							self::$status = 0; 
 					  
 				} elseif ( $arr["texttype"] == "callback_query" ){				
 							//인라인 키보드의 답변인 경우
-
 						$a = explode( "@", $arr["cbtext"] );
 						$rpl = self::inlineReply( $a[0], $a[1] );
 						self::editMessage( $arr["cbcid"], $arr["cbmid"], $rpl, json_encode($arr["ikb"]), $arr["upid"] );											
+						self::$status = 0;
 					
 				} 
 		
@@ -343,10 +342,15 @@ class Magenta{
 		
 		} else {
 		
-			if ( self::$wait == false ){
+			if ( self::$status == 0 ){
+		
+				if ( self::$wait == false ){
 			
-			echo "\nMagenta is waiting..\n\n";
-			//sleep ( 0.1 );
+				echo "\nMagenta is waiting..\n\n";
+				//sleep ( 0.1 );
+				self::$status = 1;
+			
+				}
 			
 			}
 			
