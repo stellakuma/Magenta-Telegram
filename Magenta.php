@@ -28,6 +28,7 @@ class Magenta{
 	* checkUpdate also need optimization
 	*
 	* 19/08/09 : sendImage is Updated
+	* 19/08/13 : when i buy raspberrypi, magenta will be update for run at multiple messages.
 	*****************************************/
 	
 	public static function sendMessage( $chatid, $text, $upid, $keyboard = null ){
