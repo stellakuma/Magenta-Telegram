@@ -27,17 +27,40 @@ class Magenta{
 	* Use curl.
 	* checkUpdate also need optimization
 	*
+	* 19/08/09 : sendImage is Updated
 	*****************************************/
 	
 	public static function sendMessage( $chatid, $text, $upid, $keyboard = null ){
-		
-		print_r($text);
 		
 		$url = self::$aurl.BotToken::getToken()."/sendMessage?chat_id=".$chatid."&text=".urlencode($text);
 		
 		$kb = ( $keyboard !== null )? "&reply_markup=".$keyboard : null;
 		
 		$url = $url.$kb;
+
+		
+		$curl = curl_init();
+		
+		curl_setopt ( $curl, CURLOPT_URL, $url );
+		curl_setopt ( $curl, CURLOPT_RETURNTRANSFER, true );
+		
+		curl_exec($curl);
+		
+		self::$luid = $upid;
+
+		echo "\nSending Message to {$chatid}\n".Utils::getTime("Asia/Seoul", "Y-m-d h:i:s")."\n\n";
+		
+	}
+	
+	public static function sendImage( $chatid, $image, $upid, $caption, $keyboard = null ){
+		
+		$url = self::$aurl.BotToken::getToken()."/sendPhoto?chat_id=".$chatid."&photo=".$image;
+		
+		
+		$cp = ( $caption !== null )? "&caption=".$caption : null;
+		$kb = ( $keyboard !== null )? "&reply_markup=".$keyboard : null;
+		
+		$url = $url.$cp.$kb;
 
 		
 		$curl = curl_init();
@@ -154,6 +177,17 @@ class Magenta{
 	* todo : inline cmd reply
 	* 
 	*****************************************/
+	public static function getCaption( $cmd ){
+		
+		$cna = [
+		
+		"/pstock" => "Latest updated file.\nStock Name : 2018 S&P 500"
+		
+		];
+		
+		return ( in_array ( $cmd, $cna ) )? $cna[ $cmd ] : null; 
+		
+	}
 	
 	public static function response( $command, $darr ){
 		
@@ -212,11 +246,11 @@ class Magenta{
 			"/roominfo" => "채팅방명 : {$title}\n채팅방의 유형 : {$darr["type"]}",
 			"/userinfo" => "마젠타가 인지하는 정보를 표시합니다.\n"."유저명 : {$name}\n유저호출명 : @{$darr["user_id"]}\n사용 언어 : {$lang}",
 			"/off" => ( $command == "/off" )? ( $darr["user_id"] == "CYANPEN" )? self::off("s?", $darr["upid"]) : "관리자만 실행할 수 있습니다." : null,
-			"/fcstock" => "개발중입니다",
 			"/feel" => "개발중입니다",
 			"/editnote" => ($command == "/editnote")? Utils::editNote( $name, $darr["user_id"], $note ) : null,
 			"/note" => Utils::getNote( $darr["user_id"] ),
-			"/random" => "0부터 100 사이의 난수를 출력합니다!#".$kb
+			"/random" => "0부터 100 사이의 난수를 출력합니다!#".$kb,
+			"/pstock" => "https://lh4.googleusercontent.com/jq8Xve8MaRwk4V-rZRCrEgQAFIqT_Y3ssuTt_LUOMyHacZrC02gpeEeyQfxjOHFHfICBlWDXeim_BeLiU9ek=w1132-h930"
 			
 		];
 		
@@ -316,6 +350,9 @@ class Magenta{
 			if ( isset ( $arr["texttype"] ) ) {
 
 				if ( $arr["texttype"] == "bot_command" ){
+							
+							if ( ! Utils::isPRCommand( $arr["text"] ) ){
+							
 							//일반 커맨드인 경우
 							$texts = explode( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) );
 							$texts = ( isset( $texts[1] ) )? $texts : $texts[0];
@@ -324,6 +361,20 @@ class Magenta{
 							
 							self::sendMessage( $arr["chat_id"], $rp[0], $arr["upid"], @$rp[1] );
 							self::$status = 0; 
+							
+							}else{
+								
+							//이미지 전송 커맨드인 경우
+							$texts = explode( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) );
+							$texts = ( isset( $texts[1] ) )? $texts : $texts[0];
+							
+							$rp = explode( "#", self::response( $texts, $arr ) );
+							
+							self::sendImage( $arr["chat_id"], $rp[0], $arr["upid"], self::getCaption($arr["text"]), @$rp[1] );
+							self::$status = 0; 
+								
+							}
+							
 					  
 				} elseif ( $arr["texttype"] == "callback_query" ){				
 							//인라인 키보드의 답변인 경우

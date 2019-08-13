@@ -9,9 +9,13 @@ Magenta the telegram bot
 >> Add UTF-8 Converter on Utils.php ( 2019/07/24 )  
 >> Magenta is now Runnable! ( 2019/07/27 )  
 >> Add FeelModule.php ( 2019/07/28 )  
->> Sources are little optimization ( 2019/07/30 ) 
+>> Sources are little optimization ( 2019/07/30 )  
+>> Add Keras Module ( 2019/08/07 )  
 ------------------------------------------
 > ## Known Bug List
 >> * ~~when run magenta first, it print latest command again.~~  
->> * ~~when type /note, note about user is deleted.~~
------------------------------------------------------
+>> * ~~when type /note, note about user is deleted.~~  
+---------------------------------------------------------------
+> ## Issues
+>> * when magenta get 1+ message, magenta will get first message only.  
+----------------------------------------------------------------------

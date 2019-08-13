@@ -5,6 +5,18 @@ class Utils{
 
 	public static $note = [];
 
+	public static function isPRCommand( $text ){
+		
+		$prc = [
+		
+		"/pstock"
+		
+		];
+		
+		return in_array( $text, $prc );
+		
+	}
+
 	public static function editNote( $name, $id, $text ){
 		
 		self::$note[$id] = $text;
