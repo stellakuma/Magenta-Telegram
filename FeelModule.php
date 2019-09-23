@@ -7,7 +7,7 @@ use MagentaTelegram\Utils;
 
 class Feel{
 	
-	private $feeling = [
+	private static $feel = [
 	
 		"joy" => 0,
 		"sad" => 0,
@@ -25,47 +25,35 @@ class Feel{
 		
 	}
 	
-	public function addJoy( $num ){
+	public function editEmotion( $type, $param ){
+	
+		if ( isset ( self::feel[$type] ) ) {
 		
-		$this->feeling["joy"] = $this->feeling["joy"] + $num;
+			self::feel[$type] = $param;
+			
+		} else {
 		
+			echo "\n There's any emotion type on array. \n Did you find AddEmotion? \n";	
+			return -1;
+		
+		}
+			
 	}
 	
-	public function addSad( $num ){
-		
-		$this->feeling["sad"] = $this->feeling["sad"] + $num;
-		
-	}
 	
-	public function addAnger( $num ){
-		
-		$this->feeling["anger"] = $this->feeling["anger"] + $num;
-		
-	}
+	public function addEmotion( $type ){
 	
-	public function addFear( $num ){
+		if ( ! isset ( self::feel[$type] ) ){
 		
-		$this->feeling["fear"] = $this->feeling["fear"] + $num;
+			self::feel[$type] = 0;
 		
+		} else {
+		
+			echo "\n Already exist emotion type \n";
+			return -1;
+		
+		}	
 	}
-	
-	public function addDisgust( $num ){
-		
-		$this->feeling["disgust"] = $this->feeling["disgust"] + $num;
-		
-	}
-
-	public function addContempt( $num ){
-		
-		$this->feeling["contempt"] = $this->feeling["contempt"] + $num;
-		
-	}
-
-	public function addSurprise( $num ){
-		
-		$this->feeling["surprise"] = $this->feeling["surprise"] + $num;
-		
-	}	
 	
 }
 
