@@ -11,21 +11,10 @@ Magenta the telegram bot
 >> Add FeelModule.php ( 2019/07/28 )  
 >> Sources are little optimization ( 2019/07/30 )  
 >> Add Keras Module ( 2019/08/07 )  
->> Add MIT License ( 2019/08/14 )
-<<<<<<< HEAD
+>> Add MIT License ( 2019/08/14 )  
 >> Multiplex response update ( 2019/12/06 )
-=======
->>>>>>> 596e3038e3af339cdd436ba87dcc1ece75859dc1
 ------------------------------------------
-> ## Known Bug List
->> * ~~when run magenta first, it print latest command again.~~  
->> * ~~when type /note, note about user is deleted.~~  
+> ## Known Bug List  
 ---------------------------------------------------------------
-> ## Issues
-<<<<<<< HEAD
->> * ~~when magenta get 1+ message, magenta will get first message only.~~  
->> * now magenta is re-updating, but still any server computer for magenta.  
-=======
->> * when magenta get 1+ message, magenta will get first message only.  
->>>>>>> 596e3038e3af339cdd436ba87dcc1ece75859dc1
+> ## Issues  
 ----------------------------------------------------------------------
