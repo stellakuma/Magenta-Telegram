@@ -111,7 +111,6 @@ class Magenta{
 		
 		$arr = json_decode($json, true);
 		
-<<<<<<< HEAD
 		$max = sizeof( $arr["result"] );
 		
 		$rarr = [];
@@ -179,63 +178,6 @@ class Magenta{
 		
 		return $arr;
 	
-=======
-		$rarr = [];
-				
-		if ( null !== @$arr["result"][0]["message"]["chat"]["type"] ) {
-			
-			if ( @$arr["result"][0]["message"]["chat"]["type"] == "supergroup" ){
-			
-			$rarr["upid"] = $arr["result"][0]["update_id"];
-			$rarr["is_bot"] = $arr["result"][0]["message"]["from"]["is_bot"];
-			$rarr["rawname"] = $arr["result"][0]["message"]["from"]["first_name"];
-			$rarr["user_id"] = $arr["result"][0]["message"]["from"]["username"];
-			$rarr["chat_id"] = $arr["result"][0]["message"]["chat"]["id"];
-			$rarr["rawtitle"] = $arr["result"][0]["message"]["chat"]["title"];
-			$rarr["type"] = $arr["result"][0]["message"]["chat"]["type"];
-			$rarr["text"] = $arr["result"][0]["message"]["text"];
-			$rarr["texttype"] = @$arr["result"][0]["message"]["entities"][0]["type"];
-			$rarr["lang"] = @$arr["result"][0]["message"]["from"]["language_code"];
-			
-			}
-			
-		}
-			
-		if ( null !== @$arr["result"][0]["message"]["chat"]["type"] ) {	
-			
-			if ( @$arr["result"][0]["message"]["chat"]["type"] == "private" ){
-			
-			$rarr["upid"] = $arr["result"][0]["update_id"];
-			$rarr["is_bot"] = $arr["result"][0]["message"]["from"]["is_bot"];
-			$rarr["rawname"] = $arr["result"][0]["message"]["from"]["first_name"];
-			$rarr["user_id"] = $arr["result"][0]["message"]["from"]["username"];
-			$rarr["chat_id"] = $arr["result"][0]["message"]["chat"]["id"];
-			$rarr["type"] = $arr["result"][0]["message"]["chat"]["type"];
-			$rarr["text"] = $arr["result"][0]["message"]["text"];
-			$rarr["texttype"] = ( @$arr["result"][0]["message"]["entities"][0]["type"] !== null )? $arr["result"][0]["message"]["entities"][0]["type"] : null;
-			$rarr["lang"] = $arr["result"][0]["message"]["from"]["language_code"];
-			
-			}
-			
-		}
-		
-		if ( null !== @$arr["result"][0]["callback_query"] ){
-			
-			$rarr["upid"] = $arr["result"][0]["update_id"];
-			$rarr["cbtext"] = $arr["result"][0]["callback_query"]["data"];
-			$rarr["cbmid"] = $arr["result"][0]["callback_query"]["message"]["message_id"];
-			$rarr["cbcid"] = $arr["result"][0]["callback_query"]["message"]["chat"]["id"];
-			$rarr["ikb"] = $arr["result"][0]["callback_query"]["message"]["reply_markup"];
-			$rarr["texttype"] = "callback_query";
-			
-		}
-		
-		//interpretation function
-		//print_r($rarr);
-		
-		return $rarr;
-		
->>>>>>> 596e3038e3af339cdd436ba87dcc1ece75859dc1
 	}
 	
 	
@@ -413,7 +355,6 @@ class Magenta{
 
 		$arr = self::checkUpdate();
 		
-<<<<<<< HEAD
 		for ( $i = 0; $i < $arr["amount"]; $i++ ){
 		
 		$allow = (@$arr[$i]["upid"] == self::$luid)? false : true;
@@ -433,64 +374,27 @@ class Magenta{
 							$rp = explode( "#", self::response( $texts, $arr[$i] ) );
 							
 							self::sendMessage( $arr[$i]["chat_id"], $rp[0], $arr[$i]["upid"], @$rp[1] );
-=======
-		$allow = (@$arr["upid"] == self::$luid)? false : true;
-		
-
-		if ( $allow == true ) {
-
-			if ( isset ( $arr["texttype"] ) ) {
-
-				if ( $arr["texttype"] == "bot_command" ){
-							
-							if ( ! Utils::isPRCommand( $arr["text"] ) ){
-							
-							//일반 커맨드인 경우
-							$texts = explode( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) );
-							$texts = ( isset( $texts[1] ) )? $texts : $texts[0];
-							
-							$rp = explode( "#", self::response( $texts, $arr ) );
-							
-							self::sendMessage( $arr["chat_id"], $rp[0], $arr["upid"], @$rp[1] );
->>>>>>> 596e3038e3af339cdd436ba87dcc1ece75859dc1
 							self::$status = 0; 
 							
 							}else{
 								
 							//이미지 전송 커맨드인 경우
-<<<<<<< HEAD
 							$texts = explode( chr(32), str_replace( "@magenta_bot", "", $arr[$i]["text"] ) );
 							$texts = ( isset( $texts[1] ) )? $texts : $texts[0];
 							
 							$rp = explode( "#", self::response( $texts, $arr[$i] ) );
 							
 							self::sendImage( $arr[$i]["chat_id"], $rp[0], $arr[$i]["upid"], self::getCaption($arr[$i]["text"]), @$rp[1] );
-=======
-							$texts = explode( chr(32), str_replace( "@magenta_bot", "", $arr["text"] ) );
-							$texts = ( isset( $texts[1] ) )? $texts : $texts[0];
-							
-							$rp = explode( "#", self::response( $texts, $arr ) );
-							
-							self::sendImage( $arr["chat_id"], $rp[0], $arr["upid"], self::getCaption($arr["text"]), @$rp[1] );
->>>>>>> 596e3038e3af339cdd436ba87dcc1ece75859dc1
 							self::$status = 0; 
 								
 							}
 							
 					  
-<<<<<<< HEAD
 				} elseif ( $arr[$i]["texttype"] == "callback_query" ){				
 							//인라인 키보드의 답변인 경우
 						$a = explode( "@", $arr[$i]["cbtext"] );
 						$rpl = self::inlineReply( $a[0], $a[1] );
 						self::editMessage( $arr[$i]["cbcid"], $arr[$i]["cbmid"], $rpl, json_encode($arr[$i]["ikb"]), $arr[$i]["upid"] );											
-=======
-				} elseif ( $arr["texttype"] == "callback_query" ){				
-							//인라인 키보드의 답변인 경우
-						$a = explode( "@", $arr["cbtext"] );
-						$rpl = self::inlineReply( $a[0], $a[1] );
-						self::editMessage( $arr["cbcid"], $arr["cbmid"], $rpl, json_encode($arr["ikb"]), $arr["upid"] );											
->>>>>>> 596e3038e3af339cdd436ba87dcc1ece75859dc1
 						self::$status = 0;
 					
 				} 
@@ -513,11 +417,8 @@ class Magenta{
 			
 		}
 		
-<<<<<<< HEAD
 		}
 		
-=======
->>>>>>> 596e3038e3af339cdd436ba87dcc1ece75859dc1
 	}
 	
 	

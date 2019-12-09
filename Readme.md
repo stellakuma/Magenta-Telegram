@@ -11,10 +11,10 @@ Magenta the telegram bot
 >> Add FeelModule.php ( 2019/07/28 )  
 >> Sources are little optimization ( 2019/07/30 )  
 >> Add Keras Module ( 2019/08/07 )  
->> Add MIT License ( 2019/08/14 )  
->> Multiplex response update ( 2019/12/06 )
+>> Add MIT License ( 2019/08/14 )
+>> Multiplex command reponse update ( 2019/12/08 )
 ------------------------------------------
-> ## Known Bug List  
+> ## Known Bug List
 ---------------------------------------------------------------
-> ## Issues  
+> ## Issues 
 ----------------------------------------------------------------------
