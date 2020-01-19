@@ -1,5 +1,8 @@
 Magenta the telegram bot
 ========================
+**This project is abandoned!**  
+**moved for cpp project.**
+----------------------------------
 > ## Magenta v1
 >> ### Changelogs
 >> Add Readme.md ( 2019/07/19 )  
